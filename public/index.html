@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+  <div class="bg-white shadow-md rounded p-6 w-full max-w-md">
+    <h1 class="text-2xl font-semibold mb-4">Text Chat</h1>
+    <div id="chat" class="flex flex-col h-full">
+      <div id="messages" class="flex flex-col space-y-2 mb-4 h-56 overflow-y-scroll border border-gray-300 p-2 rounded"></div>
+      <input type="text" id="input" placeholder="Type your message..." class="border border-gray-300 rounded py-2 px-4 focus:outline-none focus:border-blue-500">
+    </div>
+  </div>
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('input');
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const message = input.value.trim();
+        if (message.length > 0) {
+          socket.emit('message', message);
+          addMessage(message, true);
+          input.value = '';
+        }
+      }
+    });
+
+    socket.on('message', (message) => {
+      addMessage(message, false);
+    });
+
+    function addMessage(message, isOwnMessage) {
+      const div = document.createElement('div');
+      div.className = isOwnMessage ? 'own-message text-white bg-blue-500 rounded p-2' : 'other-message text-white bg-gray-500 rounded p-2';
+      div.textContent = message;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
+</body>
+</html>
